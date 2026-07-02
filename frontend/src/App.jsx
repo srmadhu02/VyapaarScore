@@ -4,6 +4,7 @@ import RadarChart from './components/RadarChart'
 import FactorBreakdown from './components/FactorBreakdown'
 import TrendChart from './components/TrendChart'
 import WhatIfSimulator from './components/WhatIfSimulator'
+import TrustIntegrityCard from './components/TrustIntegrityCard'
 
 const API_URL = 'http://127.0.0.1:8000'
 
@@ -166,6 +167,13 @@ export default function App() {
               <RadarChart factors={result.factors_normalized_0_1} />
             </div>
           </div>
+          
+          {/* Trust & Integrity Check */}
+          {result.integrity && (
+            <div className="dashboard__bottom">
+              <TrustIntegrityCard integrity={result.integrity} />
+            </div>
+          )}
 
           {/* Trend Chart */}
           {result.trend && (

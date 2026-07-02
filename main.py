@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from score_engine import score_merchant, compute_score_trend, load_transactions
 from tips_engine import generate_tips, generate_strength
 from simulator import simulate
+from anomaly_detector import check_integrity
 
 app = FastAPI(
     title="VyapaarScore API",
@@ -62,6 +63,10 @@ async def score_csv(file: UploadFile = File(...)):
         result["tips"] = generate_tips(result["factors_normalized_0_1"], result["factor_details"])
         result["strength"] = generate_strength(result["factors_normalized_0_1"], result["factor_details"])
         result["trend"] = compute_score_trend(tmp_path)
+        
+        transactions = load_transactions(tmp_path)
+        result["integrity"] = check_integrity(transactions)
+        
         return result
 
     except Exception as e:

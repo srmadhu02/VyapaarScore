@@ -725,3 +725,59 @@ body::after {
     gap: var(--space-xl);
   }
 }
+
+/* --- Trust & Integrity --- */
+.integrity-badge {
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.integrity-badge--low { color: var(--accent-emerald); background: rgba(52, 211, 153, 0.1); border: 1px solid rgba(52, 211, 153, 0.2); }
+.integrity-badge--medium { color: var(--accent-amber); background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.2); }
+.integrity-badge--high { color: var(--accent-rose); background: rgba(251, 113, 133, 0.1); border: 1px solid rgba(251, 113, 133, 0.2); }
+
+.integrity-flags {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.integrity-flag {
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  background: var(--bg-glass);
+  border-left: 4px solid var(--border-subtle);
+}
+
+.integrity-flag--high {
+  border-left-color: var(--accent-rose);
+  background: rgba(251, 113, 133, 0.05);
+}
+
+.integrity-flag--medium {
+  border-left-color: var(--accent-amber);
+  background: rgba(251, 191, 36, 0.05);
+}
+
+.integrity-flag__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xs);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+}
+
+.integrity-flag--high .integrity-flag__severity { color: var(--accent-rose); }
+.integrity-flag--medium .integrity-flag__severity { color: var(--accent-amber); }
+
+.integrity-flag__message {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}

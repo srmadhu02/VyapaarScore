@@ -32,6 +32,7 @@ MERCHANT_VPA = {
     "growing_shop": "newageapparel@ybl",
     "seasonal_vendor": "festivedecor@okaxis",
     "risky_declining": "citychaishop@paytm",
+    "gaming_attempt": "quickmart247@oksbi",
 }
 
 
@@ -172,6 +173,65 @@ def gen_risky_declining():
     return rows
 
 
+def gen_gaming_attempt():
+    """A mediocre/struggling merchant who, in the final 2 weeks before
+    'applying', injects a burst of scripted-looking transactions to try
+    to inflate their score: round amounts, tight time clusters, and
+    heavy repetition from a couple of payers. This persona exists to
+    prove the anomaly detector actually catches something real, not
+    just always returning 'low risk'."""
+    rows = []
+    base_daily_txns = 5
+    base_ticket = 90
+    repeat_pool = random.sample(PAYER_NAMES, 20)
+    casual_pool = random.sample([p for p in PAYER_NAMES if p not in repeat_pool], 60)
+    gaming_start_day = NUM_DAYS - 14  # last 2 weeks
+
+    for day in range(NUM_DAYS):
+        date = START_DATE + timedelta(days=day)
+
+        if day < gaming_start_day:
+            # normal, slightly struggling business — organic and unremarkable
+            num_txns = max(0, int(random.gauss(base_daily_txns, 2)))
+            for _ in range(num_txns):
+                payer = random.choice(repeat_pool) if random.random() < 0.5 else random.choice(casual_pool)
+                amount = max(20, round(random.gauss(base_ticket, 35), 2))
+                hour = random.randint(8, 21)
+                ts = date.replace(hour=hour, minute=random.randint(0, 59))
+                status = "success" if random.random() > 0.03 else "failed"
+                rows.append([txn_id(), ts.isoformat(), amount, "credit", payer, status, MERCHANT_VPA["gaming_attempt"]])
+        else:
+            # GAMING PHASE: scripted-looking burst transactions
+            # 1) normal background activity continues (so it's not ALL fake)
+            num_normal = max(0, int(random.gauss(base_daily_txns, 2)))
+            for _ in range(num_normal):
+                payer = random.choice(repeat_pool) if random.random() < 0.5 else random.choice(casual_pool)
+                amount = max(20, round(random.gauss(base_ticket, 35), 2))
+                hour = random.randint(8, 21)
+                ts = date.replace(hour=hour, minute=random.randint(0, 59))
+                status = "success" if random.random() > 0.03 else "failed"
+                rows.append([txn_id(), ts.isoformat(), amount, "credit", payer, status, MERCHANT_VPA["gaming_attempt"]])
+
+            # 2) injected scripted burst: same 2 payers, round amounts, tight time cluster
+            gaming_payers = repeat_pool[:2]
+            burst_hour = random.choice([11, 15, 19])
+            burst_start_minute = random.randint(0, 40)
+            num_burst_txns = random.randint(8, 14)
+            for i in range(num_burst_txns):
+                payer = random.choice(gaming_payers)
+                amount = random.choice([500, 1000, 1500, 2000, 2500])  # suspiciously round
+                minute = min(59, burst_start_minute + i)  # tight cluster within ~10 min
+                ts = date.replace(hour=burst_hour, minute=minute)
+                rows.append([txn_id(), ts.isoformat(), amount, "credit", payer, "success", MERCHANT_VPA["gaming_attempt"]])
+
+        if random.random() < 0.1:
+            amount = round(random.uniform(200, 1500), 2)
+            ts = date.replace(hour=random.randint(9, 18))
+            rows.append([txn_id(), ts.isoformat(), amount, "debit", "landlord@ybl", "success", MERCHANT_VPA["gaming_attempt"]])
+
+    return rows
+
+
 def write_csv(filename, rows):
     header = ["transaction_id", "timestamp", "amount", "type", "payer_vpa", "status", "merchant_vpa"]
     rows_sorted = sorted(rows, key=lambda r: r[1])
@@ -188,6 +248,7 @@ if __name__ == "__main__":
         "growing_shop": gen_growing_shop,
         "seasonal_vendor": gen_seasonal_vendor,
         "risky_declining": gen_risky_declining,
+        "gaming_attempt": gen_gaming_attempt,
     }
     for name, gen_fn in personas.items():
         rows = gen_fn()
