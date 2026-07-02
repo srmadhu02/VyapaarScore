@@ -1,0 +1,23 @@
+# --- Python / FastAPI backend ---
+__pycache__/
+*.pyc
+venv/
+.venv/
+env/
+*.egg-info/
+
+# --- Node / Vite / React frontend ---
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+node_modules/
+
+# --- Editor / OS junk ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- Env / secrets (if you add any later) ---
+.env
+.env.local
