@@ -11,6 +11,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from score_engine import score_merchant
+from tips_engine import generate_tips, generate_strength
 
 app = FastAPI(
     title="VyapaarScore API",
@@ -57,6 +58,8 @@ async def score_csv(file: UploadFile = File(...)):
             shutil.copyfileobj(file.file, tmp)
 
         result = score_merchant(tmp_path)
+        result["tips"] = generate_tips(result["factors_normalized_0_1"], result["factor_details"])
+        result["strength"] = generate_strength(result["factors_normalized_0_1"], result["factor_details"])
         return result
 
     except Exception as e:

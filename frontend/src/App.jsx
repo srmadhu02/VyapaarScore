@@ -173,6 +173,36 @@ export default function App() {
             </div>
           </div>
 
+          {/* Bottom: Improve your score */}
+          <div className="dashboard__bottom">
+            <div className="card" id="tips-card">
+              <div className="card__title">Improve your score</div>
+              {result.strength && (
+                <div style={{ color: 'var(--grade-a)', marginBottom: 'var(--space-md)', padding: 'var(--space-md)', background: 'rgba(52, 211, 153, 0.1)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(52, 211, 153, 0.25)' }}>
+                  ✨ <strong>Strength:</strong> {result.strength.message}
+                </div>
+              )}
+              {result.tips && result.tips.length > 0 ? (
+                <div style={{ display: 'grid', gap: 'var(--space-md)' }}>
+                  {result.tips.map((tip, idx) => (
+                    <div key={idx} className="factor-item" style={{ padding: 'var(--space-lg)', animationDelay: `${idx * 0.1}s` }}>
+                      <div className="factor-item__name" style={{ marginBottom: 'var(--space-sm)' }}>
+                        Target: {tip.label} (Current Score: {(tip.score * 100).toFixed(0)}%)
+                      </div>
+                      <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.5' }}>
+                        {tip.tip}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ color: 'var(--text-muted)', padding: 'var(--space-md)', textAlign: 'center' }}>
+                  No major weak points detected — all factors above threshold!
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Upload another */}
           <button className="btn-upload-another" onClick={reset} id="btn-upload-another">
             ↩ Upload Another CSV
