@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from 'react'
 import ScoreDisplay from './components/ScoreDisplay'
 import RadarChart from './components/RadarChart'
 import FactorBreakdown from './components/FactorBreakdown'
+import TrendChart from './components/TrendChart'
 
 const API_URL = 'http://127.0.0.1:8000'
 
@@ -161,6 +162,16 @@ export default function App() {
               <RadarChart factors={result.factors_normalized_0_1} />
             </div>
           </div>
+
+          {/* Trend Chart */}
+          {result.trend && (
+            <div className="dashboard__bottom">
+              <div className="card" id="trend-card">
+                <div className="card__title">Score Trend</div>
+                <TrendChart trend={result.trend} />
+              </div>
+            </div>
+          )}
 
           {/* Bottom: Factor breakdown */}
           <div className="dashboard__bottom">

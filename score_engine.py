@@ -11,7 +11,7 @@ anywhere in Antigravity.
 """
 
 import csv
-from datetime import datetime
+from datetime import datetime, timedelta
 from collections import defaultdict
 import statistics as stats
 
@@ -67,7 +67,7 @@ def normalize(value, low, high):
     return max(0.0, min(1.0, (value - low) / (high - low)))
 
 
-def compute_consistency(daily):
+def compute_consistency(daily, window_days):
     """Lower coefficient-of-variation (std/mean) of daily inflow = more consistent."""
     values = list(daily.values())
     if len(values) < 2 or stats.mean(values) == 0:
@@ -77,7 +77,7 @@ def compute_consistency(daily):
     cv = std_v / mean_v
     # lower CV is better; typical range 0.3 (very steady) to 2.5 (very erratic)
     score = 1 - normalize(cv, 0.3, 2.5)
-    active_days_ratio = len(values) / 182  # out of the 182-day window
+    active_days_ratio = len(values) / max(window_days, 1)
     combined = 0.7 * score + 0.3 * normalize(active_days_ratio, 0.05, 0.9)
     return round(combined, 4), {
         "coefficient_of_variation": round(cv, 3),
@@ -176,15 +176,26 @@ def compute_longevity(transactions):
     return round(score, 4), {"history_span_days": span_days}
 
 
-def score_merchant(filepath):
-    transactions = load_transactions(filepath)
+def score_transactions(transactions):
+    """Core scoring logic — works on any in-memory list of transaction dicts.
+    Used directly by score_merchant() (full history) and by compute_score_trend()
+    (progressively larger slices of history, to show how the score evolves)."""
+    if not transactions:
+        return {
+            "score": 0.0, "grade": "D",
+            "factors_normalized_0_1": {}, "factor_details": {},
+            "total_transactions": 0,
+        }
+
     daily = daily_inflows(transactions)
     monthly = monthly_inflows(transactions)
+    dates = [t["timestamp"] for t in transactions]
+    window_days = max((max(dates) - min(dates)).days, 1)
 
     factors = {}
     details = {}
 
-    factors["consistency"], details["consistency"] = compute_consistency(daily)
+    factors["consistency"], details["consistency"] = compute_consistency(daily, window_days)
     factors["growth"], details["growth"] = compute_growth(transactions, monthly)
     factors["liquidity_buffer"], details["liquidity_buffer"] = compute_liquidity_buffer(transactions, daily)
     factors["payer_diversity"], details["payer_diversity"] = compute_payer_diversity(transactions)
@@ -210,6 +221,58 @@ def score_merchant(filepath):
         "factor_details": details,
         "total_transactions": len(transactions),
     }
+
+
+def score_merchant(filepath):
+    transactions = load_transactions(filepath)
+    return score_transactions(transactions)
+
+
+def compute_score_trend(filepath, min_history_days=60, step_days=30):
+    """
+    Computes the merchant's score AS OF each checkpoint in their history,
+    using only transactions up to that point (an expanding window).
+
+    This produces a genuine trajectory — e.g. a merchant who's growing will
+    show a real upward trend, because their consistency/growth/buffer
+    factors genuinely improve over time as more good history accumulates.
+
+    min_history_days: skip checkpoints before this much history exists
+                       (score on <60 days of data is too noisy to show)
+    step_days: gap between checkpoints, e.g. every 30 days ~ "monthly"
+
+    Returns: [{"date": "2026-03-02", "score": 61.4, "grade": "C"}, ...]
+    """
+    all_transactions = load_transactions(filepath)
+    if not all_transactions:
+        return []
+
+    all_transactions.sort(key=lambda t: t["timestamp"])
+    start_date = all_transactions[0]["timestamp"]
+    end_date = all_transactions[-1]["timestamp"]
+
+    trend = []
+    checkpoint = start_date + timedelta(days=min_history_days)
+    while checkpoint <= end_date:
+        slice_txns = [t for t in all_transactions if t["timestamp"] <= checkpoint]
+        result = score_transactions(slice_txns)
+        trend.append({
+            "date": checkpoint.date().isoformat(),
+            "score": result["score"],
+            "grade": result["grade"],
+        })
+        checkpoint += timedelta(days=step_days)
+
+    # Always include the final, full-history checkpoint if not already covered
+    if not trend or trend[-1]["date"] != end_date.date().isoformat():
+        result = score_transactions(all_transactions)
+        trend.append({
+            "date": end_date.date().isoformat(),
+            "score": result["score"],
+            "grade": result["grade"],
+        })
+
+    return trend
 
 
 if __name__ == "__main__":
