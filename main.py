@@ -7,11 +7,12 @@ import os
 import tempfile
 import shutil
 
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from score_engine import score_merchant, compute_score_trend
+from score_engine import score_merchant, compute_score_trend, load_transactions
 from tips_engine import generate_tips, generate_strength
+from simulator import simulate
 
 app = FastAPI(
     title="VyapaarScore API",
@@ -70,5 +71,47 @@ async def score_csv(file: UploadFile = File(...)):
         )
     finally:
         # Clean up the temp file
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
+
+
+@app.post("/simulate")
+async def simulate_endpoint(
+    file: UploadFile = File(...),
+    inflow_growth_pct: float = Form(0),
+    new_repeat_customers: int = Form(0),
+    reduce_failures_pct: float = Form(0),
+    reduce_outflows_pct: float = Form(0),
+):
+    """
+    Accept a CSV upload and simulation parameters, run the simulator,
+    and return the baseline and simulated scores.
+    """
+    if not file.filename.lower().endswith(".csv"):
+        raise HTTPException(
+            status_code=400,
+            detail="Only .csv files are accepted.",
+        )
+
+    tmp_fd, tmp_path = tempfile.mkstemp(suffix=".csv")
+    try:
+        with os.fdopen(tmp_fd, "wb") as tmp:
+            shutil.copyfileobj(file.file, tmp)
+            
+        transactions = load_transactions(tmp_path)
+        result = simulate(
+            transactions,
+            inflow_growth_pct=inflow_growth_pct,
+            new_repeat_customers=new_repeat_customers,
+            reduce_failures_pct=reduce_failures_pct,
+            reduce_outflows_pct=reduce_outflows_pct,
+        )
+        return result
+    except Exception as e:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Failed to simulate score: {str(e)}",
+        )
+    finally:
         if os.path.exists(tmp_path):
             os.remove(tmp_path)

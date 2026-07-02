@@ -3,6 +3,7 @@ import ScoreDisplay from './components/ScoreDisplay'
 import RadarChart from './components/RadarChart'
 import FactorBreakdown from './components/FactorBreakdown'
 import TrendChart from './components/TrendChart'
+import WhatIfSimulator from './components/WhatIfSimulator'
 
 const API_URL = 'http://127.0.0.1:8000'
 
@@ -11,6 +12,7 @@ export default function App() {
   const [result, setResult] = useState(null)
   const [error, setError] = useState('')
   const [fileName, setFileName] = useState('')
+  const [currentFile, setCurrentFile] = useState(null)
   const [dragOver, setDragOver] = useState(false)
   const inputRef = useRef(null)
 
@@ -22,6 +24,7 @@ export default function App() {
       return
     }
     setFileName(file.name)
+    setCurrentFile(file)
     setState('loading')
     setError('')
     setResult(null)
@@ -72,6 +75,7 @@ export default function App() {
     setResult(null)
     setError('')
     setFileName('')
+    setCurrentFile(null)
     if (inputRef.current) inputRef.current.value = ''
   }, [])
 
@@ -212,6 +216,11 @@ export default function App() {
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Bottom: What-If Simulator */}
+          <div className="dashboard__bottom">
+            <WhatIfSimulator file={currentFile} />
           </div>
 
           {/* Upload another */}
