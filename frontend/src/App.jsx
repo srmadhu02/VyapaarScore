@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import ScoreDisplay from './components/ScoreDisplay'
 import RadarChart from './components/RadarChart'
 import FactorBreakdown from './components/FactorBreakdown'
@@ -15,7 +15,20 @@ export default function App() {
   const [fileName, setFileName] = useState('')
   const [currentFile, setCurrentFile] = useState(null)
   const [dragOver, setDragOver] = useState(false)
+  const [categories, setCategories] = useState([])
+  const [selectedCategory, setSelectedCategory] = useState('general_service')
   const inputRef = useRef(null)
+
+  useEffect(() => {
+    fetch(`${API_URL}/categories`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setCategories(data)
+        }
+      })
+      .catch((err) => console.error('Failed to fetch categories:', err))
+  }, [])
 
   const uploadFile = useCallback(async (file) => {
     if (!file) return
@@ -33,6 +46,7 @@ export default function App() {
     try {
       const formData = new FormData()
       formData.append('file', file)
+      formData.append('category', selectedCategory)
       const res = await fetch(`${API_URL}/score`, {
         method: 'POST',
         body: formData,
@@ -55,7 +69,7 @@ export default function App() {
     setDragOver(false)
     const file = e.dataTransfer.files?.[0]
     uploadFile(file)
-  }, [uploadFile])
+  }, [uploadFile, selectedCategory])
 
   const handleDragOver = useCallback((e) => {
     e.preventDefault()
@@ -69,7 +83,7 @@ export default function App() {
   const handleFileChange = useCallback((e) => {
     const file = e.target.files?.[0]
     uploadFile(file)
-  }, [uploadFile])
+  }, [uploadFile, selectedCategory])
 
   const reset = useCallback(() => {
     setState('idle')
@@ -110,6 +124,32 @@ export default function App() {
       {/* Upload state */}
       {(state === 'idle' || state === 'error') && (
         <div className="card" id="upload-card">
+          <div style={{ marginBottom: 'var(--space-md)' }}>
+            <label htmlFor="category-select" style={{ display: 'block', marginBottom: 'var(--space-sm)', fontWeight: 'bold' }}>
+              Business Category
+            </label>
+            <select
+              id="category-select"
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              style={{
+                width: '100%',
+                padding: 'var(--space-sm)',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--border)',
+                background: 'var(--bg-card)',
+                color: 'var(--text-primary)',
+                fontSize: '1rem',
+                outline: 'none',
+              }}
+            >
+              {categories.map((cat) => (
+                <option key={cat.key} value={cat.key}>
+                  {cat.label}
+                </option>
+              ))}
+            </select>
+          </div>
           <div
             className={`upload-zone ${dragOver ? 'upload-zone--dragover' : ''}`}
             onClick={() => inputRef.current?.click()}
@@ -168,6 +208,25 @@ export default function App() {
             </div>
           </div>
           
+          {/* Peer Benchmark */}
+          {result.benchmark && (
+            <div className="dashboard__bottom">
+              <div className="card" id="benchmark-card">
+                <div className="card__title">Peer Benchmark</div>
+                <div style={{ padding: 'var(--space-md)', background: 'rgba(59, 130, 246, 0.1)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(59, 130, 246, 0.25)' }}>
+                  <div style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: 'var(--space-sm)', color: 'var(--text-primary)' }}>
+                    🏆 {result.benchmark.message}
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-lg)', color: 'var(--text-secondary)' }}>
+                    <span><strong>Category:</strong> {result.benchmark.category_label}</span>
+                    <span><strong>Peer Median:</strong> {result.benchmark.peer_median}</span>
+                    <span><strong>Peer Mean:</strong> {result.benchmark.peer_mean}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Trust & Integrity Check */}
           {result.integrity && (
             <div className="dashboard__bottom">

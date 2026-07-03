@@ -14,6 +14,7 @@ from score_engine import score_merchant, compute_score_trend, load_transactions
 from tips_engine import generate_tips, generate_strength
 from simulator import simulate
 from anomaly_detector import check_integrity
+from benchmarking import get_benchmark, list_categories
 
 app = FastAPI(
     title="VyapaarScore API",
@@ -37,8 +38,14 @@ def health_check():
     return {"status": "ok"}
 
 
+@app.get("/categories")
+def get_categories():
+    """Return the list of merchant categories for benchmarking."""
+    return list_categories()
+
+
 @app.post("/score")
-async def score_csv(file: UploadFile = File(...)):
+async def score_csv(file: UploadFile = File(...), category: str = Form("general_service")):
     """
     Accept a CSV upload of UPI transactions and return the
     merchant trust score produced by score_merchant().
@@ -66,6 +73,8 @@ async def score_csv(file: UploadFile = File(...)):
         
         transactions = load_transactions(tmp_path)
         result["integrity"] = check_integrity(transactions)
+        
+        result["benchmark"] = get_benchmark(result["score"], category)
         
         return result
 
