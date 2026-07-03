@@ -159,7 +159,7 @@ export default function App() {
 
       {/* Upload state */}
       {(state === 'idle' || state === 'error') && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-lg)', alignItems: 'stretch' }}>
+        <div className="upload-grid">
           <div className="card" id="upload-card">
             <div style={{ marginBottom: 'var(--space-md)' }}>
               <label htmlFor="category-select" style={{ display: 'block', marginBottom: 'var(--space-sm)', fontWeight: 'bold' }}>
@@ -231,7 +231,7 @@ export default function App() {
           <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '1.1rem', lineHeight: '1.6' }}>
             This simulates the RBI's Account Aggregator (AA) framework, which allows secure, user-consented data sharing between financial institutions.
           </p>
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+          <div className="aa-buttons">
             <button className="btn-upload-another" style={{ margin: 0 }} onClick={() => setState('idle')}>Cancel</button>
             <button className="btn-upload-another" style={{ background: 'var(--accent-indigo)', color: 'white', border: 'none', margin: 0 }} onClick={() => setState('aa_bank')}>
               Proceed to Bank Selection ➔
@@ -247,7 +247,7 @@ export default function App() {
           <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>
             Choose the bank where you hold your primary business account.
           </p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
+          <div className="bank-grid">
             {['HDFC Bank', 'ICICI Bank', 'State Bank of India', 'Axis Bank'].map(bank => (
               <div
                 key={bank}
@@ -278,36 +278,36 @@ export default function App() {
         <div className="card" style={{ maxWidth: '600px', margin: '0 auto' }}>
           <h2 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', textAlign: 'center' }}>Consent Request</h2>
           <div style={{ background: 'var(--bg-glass)', padding: '1.5rem', borderRadius: 'var(--radius-md)', marginBottom: '2rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.8rem', paddingBottom: '0.8rem', borderBottom: '1px solid var(--border-subtle)' }}>
+            <div className="consent-row">
               <span style={{ color: 'var(--text-muted)' }}>Financial Information User (FIU):</span>
               <span style={{ color: 'var(--text-primary)', fontWeight: 'bold' }}>VyapaarScore</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.8rem', paddingBottom: '0.8rem', borderBottom: '1px solid var(--border-subtle)' }}>
+            <div className="consent-row">
               <span style={{ color: 'var(--text-muted)' }}>Financial Information Provider (FIP):</span>
               <span style={{ color: 'var(--text-primary)', fontWeight: 'bold' }}>{selectedBank}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.8rem', paddingBottom: '0.8rem', borderBottom: '1px solid var(--border-subtle)' }}>
+            <div className="consent-row">
               <span style={{ color: 'var(--text-muted)' }}>Data Requested:</span>
               <span style={{ color: 'var(--text-primary)', fontWeight: 'bold' }}>UPI Transaction History</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.8rem', paddingBottom: '0.8rem', borderBottom: '1px solid var(--border-subtle)' }}>
+            <div className="consent-row">
               <span style={{ color: 'var(--text-muted)' }}>Purpose:</span>
               <span style={{ color: 'var(--text-primary)', fontWeight: 'bold' }}>Credit scoring for loan eligibility</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.8rem', paddingBottom: '0.8rem', borderBottom: '1px solid var(--border-subtle)' }}>
+            <div className="consent-row">
               <span style={{ color: 'var(--text-muted)' }}>Data Range:</span>
               <span style={{ color: 'var(--text-primary)', fontWeight: 'bold' }}>Last 6 months</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.8rem', paddingBottom: '0.8rem', borderBottom: '1px solid var(--border-subtle)' }}>
+            <div className="consent-row">
               <span style={{ color: 'var(--text-muted)' }}>Consent Validity:</span>
               <span style={{ color: 'var(--text-primary)', fontWeight: 'bold' }}>30 days</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div className="consent-row" style={{ borderBottom: 'none', marginBottom: 0, paddingBottom: 0 }}>
               <span style={{ color: 'var(--text-muted)' }}>Frequency:</span>
               <span style={{ color: 'var(--text-primary)', fontWeight: 'bold' }}>One-time pull</span>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+          <div className="aa-buttons">
             <button className="btn-upload-another" style={{ margin: 0 }} onClick={() => setState('idle')}>Deny</button>
             <button className="btn-upload-another" style={{ background: 'var(--accent-emerald)', color: '#0a0e1a', border: 'none', margin: 0, fontWeight: 'bold' }} onClick={handleAAApprove}>Approve & Share Data</button>
           </div>
@@ -448,7 +448,7 @@ export default function App() {
             </>
           ) : result.lender_recommendation ? (
             <div className="lender-report card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
+              <div className="lender-header">
                 <div>
                   <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--text-primary)' }}>Lender Recommendation Report</h2>
                   <div style={{ color: 'var(--text-secondary)' }}>File: {fileName}</div>
@@ -456,7 +456,7 @@ export default function App() {
                 <button className="btn-upload-another no-print" onClick={() => window.print()} style={{ margin: 0 }}>🖨️ Print / Save PDF</button>
               </div>
 
-              <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
+              <div className="lender-summary">
                 <div style={{ flex: '1 1 auto', minWidth: '250px' }}>
                   <h3 style={{ fontSize: '1rem', color: 'var(--text-secondary)', margin: '0 0 0.5rem 0' }}>Automated Decision</h3>
                   <div className="badge-print-color" style={{

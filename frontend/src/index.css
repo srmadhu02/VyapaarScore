@@ -728,6 +728,41 @@ body::after {
   .app {
     padding: var(--space-md);
   }
+
+  .upload-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .aa-buttons {
+    gap: 0.75rem;
+  }
+
+  .aa-buttons .btn-upload-another {
+    font-size: 0.9rem;
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  .score-ring {
+    width: 140px;
+    height: 140px;
+  }
+
+  .score-ring__svg {
+    width: 140px;
+    height: 140px;
+  }
+
+  .score-ring__number {
+    font-size: 2rem;
+  }
+
+  .header__subtitle {
+    font-size: 0.9rem;
+  }
+
+  .header__title {
+    font-size: 1.3rem;
+  }
 }
 
 /* --- What-If Simulator --- */
@@ -856,6 +891,111 @@ body::after {
   .simulator-layout {
     grid-template-columns: 1fr;
     gap: var(--space-xl);
+  }
+}
+
+/* --- Upload Grid --- */
+.upload-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-lg);
+  align-items: stretch;
+}
+
+/* --- Bank Selection Grid --- */
+.bank-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* --- AA Button Group --- */
+.aa-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+/* --- Consent Artifact Row --- */
+.consent-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* --- Lender Report Header --- */
+.lender-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* --- Lender Summary (Decision + Amount) --- */
+.lender-summary {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+/* ========================================
+   Mobile Responsive — 768px (new classes)
+   ======================================== */
+@media (max-width: 768px) {
+  .upload-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bank-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .aa-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .aa-buttons .btn-upload-another {
+    text-align: center;
+  }
+
+  .consent-row {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .lender-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .lender-header .btn-upload-another {
+    align-self: stretch;
+    text-align: center;
+  }
+
+  .lender-summary {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .lender-summary > div {
+    min-width: 0 !important;
+  }
+
+  .what-if-card {
+    overflow-x: hidden;
+  }
+
+  .styled-slider {
+    min-width: 0;
   }
 }
 
