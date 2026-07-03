@@ -17,6 +17,7 @@ export default function App() {
   const [dragOver, setDragOver] = useState(false)
   const [categories, setCategories] = useState([])
   const [selectedCategory, setSelectedCategory] = useState('general_service')
+  const [viewMode, setViewMode] = useState('merchant')
   const inputRef = useRef(null)
 
   useEffect(() => {
@@ -62,7 +63,7 @@ export default function App() {
       setError(err.message || 'Failed to connect to the scoring API.')
       setState('error')
     }
-  }, [])
+  }, [selectedCategory])
 
   const handleDrop = useCallback((e) => {
     e.preventDefault()
@@ -192,7 +193,14 @@ export default function App() {
       {/* Results dashboard */}
       {state === 'done' && result && (
         <div className="dashboard" id="dashboard">
-          {/* Top row: Score + Radar */}
+          <div className="view-toggle no-print" style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', justifyContent: 'center' }}>
+            <button className={`btn-toggle ${viewMode === 'merchant' ? 'active' : ''}`} onClick={() => setViewMode('merchant')}>Merchant View</button>
+            <button className={`btn-toggle ${viewMode === 'lender' ? 'active' : ''}`} onClick={() => setViewMode('lender')}>Lender View</button>
+          </div>
+
+          {viewMode === 'merchant' ? (
+            <>
+              {/* Top row: Score + Radar */}
           <div className="dashboard__top">
             <div className="card score-display" id="score-card">
               <ScoreDisplay
@@ -289,9 +297,64 @@ export default function App() {
           <div className="dashboard__bottom">
             <WhatIfSimulator file={currentFile} />
           </div>
+            </>
+          ) : result.lender_recommendation ? (
+            <div className="lender-report card">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
+                <div>
+                  <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--text-primary)' }}>Lender Recommendation Report</h2>
+                  <div style={{ color: 'var(--text-secondary)' }}>File: {fileName}</div>
+                </div>
+                <button className="btn-upload-another no-print" onClick={() => window.print()} style={{ margin: 0 }}>🖨️ Print / Save PDF</button>
+              </div>
+              
+              <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
+                <div style={{ flex: '1 1 auto', minWidth: '250px' }}>
+                   <h3 style={{ fontSize: '1rem', color: 'var(--text-secondary)', margin: '0 0 0.5rem 0' }}>Automated Decision</h3>
+                   <div className="badge-print-color" style={{
+                     padding: '1rem',
+                     borderRadius: '8px',
+                     fontWeight: 'bold',
+                     fontSize: '1.25rem',
+                     textAlign: 'center',
+                     background: `var(--grade-${result.lender_recommendation.tone === 'success' ? 'a' : result.lender_recommendation.tone === 'warning' ? 'c' : 'd'}-bg, ${result.lender_recommendation.tone === 'success' ? 'rgba(52, 211, 153, 0.2)' : result.lender_recommendation.tone === 'warning' ? 'rgba(251, 191, 36, 0.2)' : 'rgba(239, 68, 68, 0.2)'})`,
+                     color: `var(--grade-${result.lender_recommendation.tone === 'success' ? 'a' : result.lender_recommendation.tone === 'warning' ? 'c' : 'd'}, ${result.lender_recommendation.tone === 'success' ? '#10b981' : result.lender_recommendation.tone === 'warning' ? '#f59e0b' : '#ef4444'})`,
+                     border: `2px solid currentColor`
+                   }}>
+                     {result.lender_recommendation.label}
+                   </div>
+                </div>
+                <div style={{ flex: '1 1 auto', minWidth: '250px' }}>
+                   <h3 style={{ fontSize: '1rem', color: 'var(--text-secondary)', margin: '0 0 0.5rem 0' }}>Max Recommended Amount</h3>
+                   <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>
+                      ₹{result.lender_recommendation.max_recommended_amount.toLocaleString('en-IN')}
+                   </div>
+                   <div style={{ color: 'var(--text-muted)' }}>{result.lender_recommendation.tier_label}</div>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '2rem' }}>
+                <h3 style={{ fontSize: '1.2rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem', marginBottom: '1rem' }}>Reasoning</h3>
+                <ul style={{ paddingLeft: '1.5rem', margin: 0, color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: 1.6 }}>
+                  {result.lender_recommendation.reasoning.map((r, i) => <li key={i} style={{ marginBottom: '0.5rem' }}>{r}</li>)}
+                </ul>
+              </div>
+
+              {result.lender_recommendation.conditions && result.lender_recommendation.conditions.length > 0 && (
+                <div className="badge-print-color" style={{ background: 'rgba(251, 191, 36, 0.1)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(251, 191, 36, 0.3)' }}>
+                  <h3 style={{ fontSize: '1.2rem', color: '#b45309', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    ⚠️ Conditions for Approval
+                  </h3>
+                  <ul style={{ paddingLeft: '1.5rem', margin: 0, color: 'var(--text-secondary)' }}>
+                    {result.lender_recommendation.conditions.map((c, i) => <li key={i} style={{ marginBottom: '0.5rem' }}>{c}</li>)}
+                  </ul>
+                </div>
+              )}
+            </div>
+          ) : null}
 
           {/* Upload another */}
-          <button className="btn-upload-another" onClick={reset} id="btn-upload-another">
+          <button className="btn-upload-another no-print" onClick={reset} id="btn-upload-another">
             ↩ Upload Another CSV
           </button>
         </div>

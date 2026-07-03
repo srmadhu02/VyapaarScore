@@ -15,6 +15,7 @@ from tips_engine import generate_tips, generate_strength
 from simulator import simulate
 from anomaly_detector import check_integrity
 from benchmarking import get_benchmark, list_categories
+from lender_report import get_lender_recommendation, DECISION_LABELS
 
 app = FastAPI(
     title="VyapaarScore API",
@@ -75,6 +76,12 @@ async def score_csv(file: UploadFile = File(...), category: str = Form("general_
         result["integrity"] = check_integrity(transactions)
         
         result["benchmark"] = get_benchmark(result["score"], category)
+        
+        lender_rec = get_lender_recommendation(
+            result["score"], result["grade"], result["integrity"], result["benchmark"]
+        )
+        lender_rec["label"], lender_rec["tone"] = DECISION_LABELS[lender_rec["decision"]]
+        result["lender_recommendation"] = lender_rec
         
         return result
 

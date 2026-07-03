@@ -781,3 +781,55 @@ body::after {
   font-size: 0.9rem;
   line-height: 1.5;
 }
+
+/* --- View Toggle --- */
+.btn-toggle {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: var(--space-sm) var(--space-md);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all var(--transition-base);
+}
+
+.btn-toggle:hover {
+  color: var(--text-primary);
+}
+
+.btn-toggle.active {
+  color: var(--accent-indigo);
+  border-bottom-color: var(--accent-indigo);
+}
+
+/* --- Print Styles for Lender Report --- */
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+  .no-print, .header, .btn-upload-another, #upload-card, .error-banner {
+    display: none !important;
+  }
+  .app {
+    padding: 0;
+    max-width: 100%;
+  }
+  .lender-report {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+  }
+  .card {
+    border: none;
+    box-shadow: none;
+    background: transparent;
+  }
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
