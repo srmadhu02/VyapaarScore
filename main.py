@@ -96,6 +96,89 @@ async def score_csv(file: UploadFile = File(...), category: str = Form("general_
             os.remove(tmp_path)
 
 
+@app.post("/score_demo")
+async def score_demo(category: str = Form("general_service"), bank: str = Form("HDFC Bank")):
+    """
+    Simulated Account Aggregator endpoint.
+    Scores the appropriate local CSV file for demonstration based on the selected bank.
+    """
+    try:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        
+        bank_to_file = {
+            "HDFC Bank": "stable_kirana.csv",
+            "ICICI Bank": "growing_shop.csv",
+            "State Bank of India": "seasonal_vendor.csv",
+            "Axis Bank": "gaming_attempt.csv"
+        }
+        filename = bank_to_file.get(bank, "stable_kirana.csv")
+        demo_file = os.path.join(base_dir, filename)
+        
+        result = score_merchant(demo_file)
+        result["tips"] = generate_tips(result["factors_normalized_0_1"], result["factor_details"])
+        result["strength"] = generate_strength(result["factors_normalized_0_1"], result["factor_details"])
+        result["trend"] = compute_score_trend(demo_file)
+        
+        transactions = load_transactions(demo_file)
+        result["integrity"] = check_integrity(transactions)
+        
+        result["benchmark"] = get_benchmark(result["score"], category)
+        
+        lender_rec = get_lender_recommendation(
+            result["score"], result["grade"], result["integrity"], result["benchmark"]
+        )
+        lender_rec["label"], lender_rec["tone"] = DECISION_LABELS[lender_rec["decision"]]
+        result["lender_recommendation"] = lender_rec
+        
+        return result
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to score the demo CSV: {str(e)}",
+        )
+
+
+@app.post("/simulate_demo")
+async def simulate_demo_endpoint(
+    bank: str = Form("HDFC Bank"),
+    inflow_growth_pct: float = Form(0),
+    new_repeat_customers: int = Form(0),
+    reduce_failures_pct: float = Form(0),
+    reduce_outflows_pct: float = Form(0),
+):
+    """
+    Simulated Account Aggregator simulator endpoint.
+    Runs the what-if simulator on the demo CSV file corresponding to the bank.
+    """
+    try:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        
+        bank_to_file = {
+            "HDFC Bank": "stable_kirana.csv",
+            "ICICI Bank": "growing_shop.csv",
+            "State Bank of India": "seasonal_vendor.csv",
+            "Axis Bank": "gaming_attempt.csv"
+        }
+        filename = bank_to_file.get(bank, "stable_kirana.csv")
+        demo_file = os.path.join(base_dir, filename)
+        
+        transactions = load_transactions(demo_file)
+        result = simulate(
+            transactions,
+            inflow_growth_pct=inflow_growth_pct,
+            new_repeat_customers=new_repeat_customers,
+            reduce_failures_pct=reduce_failures_pct,
+            reduce_outflows_pct=reduce_outflows_pct,
+        )
+        return result
+    except Exception as e:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Failed to simulate demo score: {str(e)}",
+        )
+
+
 @app.post("/simulate")
 async def simulate_endpoint(
     file: UploadFile = File(...),

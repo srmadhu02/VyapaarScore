@@ -14,7 +14,7 @@ function gradeLabel(grade) {
   return labels[grade] || grade
 }
 
-export default function WhatIfSimulator({ file }) {
+export default function WhatIfSimulator({ file, demoBank }) {
   const [params, setParams] = useState({
     inflowGrowth: 0,
     newRepeatCustomers: 0,
@@ -33,19 +33,25 @@ export default function WhatIfSimulator({ file }) {
   const isFirstRun = useRef(true)
 
   const fetchSimulation = async (currentParams) => {
-    if (!file) return
+    if (!file && !demoBank) return
 
     setLoading(true)
     setError(null)
     try {
       const formData = new FormData()
-      formData.append('file', file)
+      if (file) {
+        formData.append('file', file)
+      } else {
+        formData.append('bank', demoBank)
+      }
       formData.append('inflow_growth_pct', currentParams.inflowGrowth)
       formData.append('new_repeat_customers', currentParams.newRepeatCustomers)
       formData.append('reduce_failures_pct', currentParams.reduceFailures)
       formData.append('reduce_outflows_pct', currentParams.reduceOutflows)
 
-      const res = await fetch(`${API_URL}/simulate`, {
+      const endpoint = file ? `${API_URL}/simulate` : `${API_URL}/simulate_demo`
+
+      const res = await fetch(endpoint, {
         method: 'POST',
         body: formData,
       })
@@ -80,7 +86,7 @@ export default function WhatIfSimulator({ file }) {
     }, 400)
 
     return () => clearTimeout(timerRef.current)
-  }, [params, file])
+  }, [params, file, demoBank])
 
   const handleChange = (key, val) => {
     setParams(prev => ({ ...prev, [key]: Number(val) }))
