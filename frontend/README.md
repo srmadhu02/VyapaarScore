@@ -1,16 +1,45 @@
-# React + Vite
+# VyapaarScore — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React + Vite dashboard for **VyapaarScore**, an explainable UPI cash-flow credit scoring engine for India's micro-merchants.
 
-Currently, two official plugins are available:
+This is the client application that talks to the FastAPI backend (see `../main.py`) to upload transaction data, display the score, and walk through the simulated Account Aggregator consent flow.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+> For the full project overview — problem statement, scoring methodology, and all backend modules — see the [root README](../README.md).
 
-## React Compiler
+## What's in here
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Merchant Dashboard** — score, grade, radar chart, factor breakdown, rule-based improvement tips, score trend chart
+- **What-If Simulator** — live sliders that recompute the score against realistic business scenarios
+- **Trust & Integrity Check** — surfaces anomaly/fraud-pattern flags alongside the score
+- **Peer Benchmark** — percentile comparison against a modeled category distribution
+- **Lender View** — a print/PDF-ready recommendation report for a loan officer
+- **Account Aggregator flow** — a simulated RBI AA consent journey (bank selection → consent artifact → approve) as an alternative entry point to CSV upload
 
-## Expanding the Oxlint configuration
+## Tech stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+- React 18 + Vite
+- Chart.js / react-chartjs-2 (radar chart, score trend line chart)
+- Plain CSS with design tokens (see `src/index.css`) — no CSS framework
+
+## Running locally
+
+```bash
+npm install
+npm run dev
+```
+
+The dev server runs on `http://localhost:5173` by default and expects the backend API at `http://127.0.0.1:8000` (see `API_URL` in `src/App.jsx`).
+
+Make sure the backend is running first:
+```bash
+cd ..
+python -m uvicorn main:app --host 127.0.0.1 --port 8000
+```
+
+## Building for production
+
+```bash
+npm run build
+```
+
+Outputs a static build to `dist/`, ready to deploy (e.g. to Vercel or Netlify).

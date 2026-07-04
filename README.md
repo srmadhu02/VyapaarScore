@@ -1,17 +1,32 @@
-# UPI Cash-Flow Digital Footprint Scorer — Day 1 Deliverables
+# VyapaarScore
 
-## What's in this folder
-- `generate_data.py` — generates 6 months of synthetic UPI transactions for 4 merchant personas
-- `score_engine.py` — the scoring engine (pure Python, framework-free — port straight into your Node/Python backend)
-- `stable_kirana.csv`, `growing_shop.csv`, `seasonal_vendor.csv`, `risky_declining.csv` — the generated datasets
+**Explainable UPI cash-flow credit scoring for India's micro-merchants — with built-in fraud detection and a lender-ready recommendation engine.**
 
-## The 4 Personas (your demo cast)
-1. **Stable Kirana Store** — established, consistent daily sales, loyal repeat customers, near-zero failed transactions → should score highest
-2. **Growing New Shop** — newer business, smaller history, but a clear upward revenue trend → should score high but slightly behind #1
-3. **Seasonal Vendor** — real, legitimate business but "lumpy" cash flow (festival/wedding season spikes, dead months between) → mid score, tests whether your model unfairly punishes seasonality
-4. **Risky Declining Shop** — declining revenue, thin/one-off customer base, high transaction failure rate, weak cash buffer → lowest score
+Built for IDBI Bank's Innovate 2026 hackathon.
+
+## The Problem
+
+~99% of India's micro-merchants — kirana stores, street vendors, small service providers — are **credit invisible**. No CIBIL history, no formal financials, despite processing regular digital payments via UPI. Banks and NBFCs can't assess their creditworthiness, so these merchants get excluded from formal working-capital loans and pushed toward informal lenders with high interest rates.
+
+## The Solution
+
+VyapaarScore turns a merchant's UPI transaction history into an **explainable trust score** — no bureau data, no collateral, just cash-flow behavior. Every score comes with a transparent factor-by-factor breakdown, actionable improvement tips, an anomaly/fraud check, a peer benchmark, and a rule-based lending recommendation — the full decision layer a bank actually needs, not just a number.
+
+## What's built
+
+| Layer | What it does |
+|---|---|
+| **Scoring Engine** (`score_engine.py`) | Computes a 0–100 explainable score from 6 weighted cash-flow factors |
+| **Tips Engine** (`tips_engine.py`) | Rule-based, deterministic "improve your score" recommendations |
+| **What-If Simulator** (`simulator.py`) | Re-scores real transaction data under hypothetical scenarios (more repeat customers, fewer failed transactions, etc.) — live, interactive sliders on the frontend |
+| **Trust & Integrity Check** (`anomaly_detector.py`) | Flags wash-trading / scripted-transaction patterns consistent with score gaming — independent of the score itself |
+| **Peer Benchmarking** (`benchmarking.py`) | Percentile comparison against a modeled category distribution (e.g. "top 27% of Kirana & Grocery Stores") |
+| **Lender Recommendation Engine** (`lender_report.py`) | Translates score + integrity + benchmark into a concrete credit decision, with integrity overrides that can force manual review regardless of the numeric score |
+| **FastAPI backend** (`main.py`) | Serves all of the above via `/score`, `/score_demo`, `/simulate`, `/categories` |
+| **React dashboard** (`frontend/`) | Merchant View, Lender View (print/PDF-ready), and a simulated Account Aggregator consent flow |
 
 ## The Scoring Formula
+
 ```
 Score (0-100) = 100 × [
     0.25 × Consistency
@@ -33,20 +48,48 @@ Each factor is normalized to 0–1 before weighting. Grades: A ≥80, B ≥65, C
 | Reliability | Inverse of failed/bounced transaction rate | Proxy for operational/technical reliability |
 | Longevity | Span of available transaction history | More history = more confidence in the score |
 
-## Current Results (sanity check)
-| Merchant | Score | Grade |
-|---|---|---|
-| Stable Kirana Store | 92.1 | A |
-| Growing New Shop | 82.7 | A |
-| Seasonal Vendor | 69.2 | B |
-| Risky Declining Shop | 51.4 | C |
+Weights live in `WEIGHTS` in `score_engine.py`.
 
-## Notes for tuning during the hackathon
-- Weights live in `WEIGHTS` dict at the top of `score_engine.py` — must sum to 1.0
-- Normalization bounds (the `low, high` args to `normalize()`) are the biggest lever for spreading scores apart — tune these first if scores cluster
-- The `factor_details` dict in each result gives raw human-readable numbers (e.g. "buffer_days: 29.6") — use these directly for your "why this score" explainability UI on Day 3
+## Demo Personas
 
-## Next (Day 2)
-Port `score_merchant()` into your backend (Supabase Edge Function or a simple Node/Python API route), and wire it to accept either:
-(a) an uploaded CSV, or
-(b) a merchant_id that pulls from your mock transactions table
+Five synthetic 6-month UPI transaction datasets, each telling a different story:
+
+| Merchant | CSV | Score | Grade | Notes |
+|---|---|---|---|---|
+| Stable Kirana Store | `stable_kirana.csv` | 92.1 | A | Established, consistent, loyal customer base |
+| Growing New Shop | `growing_shop.csv` | 82.7 | A | Newer business, clear upward trend |
+| Seasonal Vendor | `seasonal_vendor.csv` | 69.3 | B | Legitimate but "lumpy" cash flow (festival spikes) |
+| Risky Declining Shop | `risky_declining.csv` | 51.4 | C | Declining revenue, thin buffer, high failure rate |
+| Gaming Attempt Shop | `gaming_attempt.csv` | 72.5 | B* | *Score looks fine — but Trust & Integrity Check flags it HIGH RISK (3 signals) and the Lender Recommendation overrides it to "Manual Review Required, ₹0" |
+
+The last row is the key demo moment: **a naive score-only model would approve this merchant. VyapaarScore doesn't.**
+
+## Running locally
+
+**Backend:**
+```bash
+pip install -r requirements.txt
+python -m uvicorn main:app --host 127.0.0.1 --port 8000
+```
+
+**Frontend:**
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173`. Full API docs at `http://127.0.0.1:8000/docs`.
+
+## Honest disclosures (say these out loud in the pitch)
+
+- **Peer benchmarking** uses modeled category distributions, not real aggregate merchant data — no hackathon team has access to that. In production this would be replaced by real distributions from actually-scored merchants.
+- **Account Aggregator flow** is a simulated consent journey demonstrating the mechanism and RBI-compliant framing, not a real bank integration.
+- **Lender recommendations** are rule-based and fully explainable by design — not a black-box classifier — so every decision traces to a stated reason.
+
+## Roadmap (post-hackathon)
+
+- Real UPI data via the RBI Account Aggregator framework (currently simulated)
+- Real peer benchmark data as the merchant base grows
+- Additional anomaly signals (device/location metadata, cross-merchant graph analysis)
+- Configurable weight tuning per lender risk appetite
