@@ -6,7 +6,7 @@ import TrendChart from './components/TrendChart'
 import WhatIfSimulator from './components/WhatIfSimulator'
 import TrustIntegrityCard from './components/TrustIntegrityCard'
 
-const API_URL = 'http://127.0.0.1:8000'
+const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
 
 export default function App() {
   const [state, setState] = useState('idle') // idle | loading | done | error
