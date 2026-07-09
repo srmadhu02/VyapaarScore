@@ -97,7 +97,7 @@ async def score_csv(file: UploadFile = File(...), category: str = Form("general_
 
 
 @app.post("/score_demo")
-async def score_demo(category: str = Form("general_service"), bank: str = Form("HDFC Bank")):
+async def score_demo(category: str = Form("general_service"), bank: str = Form("IDBI Bank")):
     """
     Simulated Account Aggregator endpoint.
     Scores the appropriate local CSV file for demonstration based on the selected bank.
@@ -106,10 +106,10 @@ async def score_demo(category: str = Form("general_service"), bank: str = Form("
         base_dir = os.path.dirname(os.path.abspath(__file__))
         
         bank_to_file = {
-            "HDFC Bank": "stable_kirana.csv",
-            "ICICI Bank": "growing_shop.csv",
-            "State Bank of India": "seasonal_vendor.csv",
-            "Axis Bank": "gaming_attempt.csv"
+            "IDBI Bank": "stable_kirana.csv",
+            "HDFC Bank": "growing_shop.csv",
+            "ICICI Bank": "seasonal_vendor.csv",
+            "State Bank of India": "gaming_attempt.csv"
         }
         filename = bank_to_file.get(bank, "stable_kirana.csv")
         demo_file = os.path.join(base_dir, filename)
@@ -141,7 +141,7 @@ async def score_demo(category: str = Form("general_service"), bank: str = Form("
 
 @app.post("/simulate_demo")
 async def simulate_demo_endpoint(
-    bank: str = Form("HDFC Bank"),
+    bank: str = Form("IDBI Bank"),
     inflow_growth_pct: float = Form(0),
     new_repeat_customers: int = Form(0),
     reduce_failures_pct: float = Form(0),
@@ -155,10 +155,10 @@ async def simulate_demo_endpoint(
         base_dir = os.path.dirname(os.path.abspath(__file__))
         
         bank_to_file = {
-            "HDFC Bank": "stable_kirana.csv",
-            "ICICI Bank": "growing_shop.csv",
-            "State Bank of India": "seasonal_vendor.csv",
-            "Axis Bank": "gaming_attempt.csv"
+            "IDBI Bank": "stable_kirana.csv",
+            "HDFC Bank": "growing_shop.csv",
+            "ICICI Bank": "seasonal_vendor.csv",
+            "State Bank of India": "gaming_attempt.csv"
         }
         filename = bank_to_file.get(bank, "stable_kirana.csv")
         demo_file = os.path.join(base_dir, filename)

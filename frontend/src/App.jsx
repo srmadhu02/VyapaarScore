@@ -69,10 +69,10 @@ export default function App() {
   const handleAAApprove = useCallback(async () => {
     setState('aa_loading')
     const fileMap = {
-      'HDFC Bank': 'stable_kirana.csv',
-      'ICICI Bank': 'growing_shop.csv',
-      'State Bank of India': 'seasonal_vendor.csv',
-      'Axis Bank': 'gaming_attempt.csv'
+      'IDBI Bank': 'stable_kirana.csv',
+      'HDFC Bank': 'growing_shop.csv',
+      'ICICI Bank': 'seasonal_vendor.csv',
+      'State Bank of India': 'gaming_attempt.csv'
     };
     const mappedFile = fileMap[selectedBank] || 'stable_kirana.csv';
     setFileName(`${mappedFile} (via AA)`)
@@ -248,7 +248,7 @@ export default function App() {
             Choose the bank where you hold your primary business account.
           </p>
           <div className="bank-grid">
-            {['HDFC Bank', 'ICICI Bank', 'State Bank of India', 'Axis Bank'].map(bank => (
+            {['IDBI Bank', 'HDFC Bank', 'ICICI Bank', 'State Bank of India'].map(bank => (
               <div
                 key={bank}
                 onClick={() => { setSelectedBank(bank); setState('aa_consent'); }}
