@@ -81,13 +81,35 @@ npm run dev
 
 Open `http://localhost:5173`. Full API docs at `http://127.0.0.1:8000/docs`.
 
-## Honest disclosures (say these out loud in the pitch)
+## Honest disclosures
 
 - **Peer benchmarking** uses modeled category distributions, not real aggregate merchant data — no hackathon team has access to that. In production this would be replaced by real distributions from actually-scored merchants.
 - **Account Aggregator flow** is a simulated consent journey demonstrating the mechanism and RBI-compliant framing, not a real bank integration.
 - **Lender recommendations** are rule-based and fully explainable by design — not a black-box classifier — so every decision traces to a stated reason.
 
-## Roadmap (post-hackathon)
+## **Screenshots of Working Demo**
+
+<img width="1237" height="584" alt="image" src="https://github.com/user-attachments/assets/97abe984-5556-4985-9463-084b3c5c2a17" />
+
+<img width="940" height="582" alt="image" src="https://github.com/user-attachments/assets/ad37ecb8-287d-4d58-aa0f-59346200ed9f" />
+
+<img width="898" height="583" alt="image" src="https://github.com/user-attachments/assets/93c90ae5-8757-4856-ae55-0afec383af38" />
+
+<img width="809" height="474" alt="image" src="https://github.com/user-attachments/assets/8a847edc-e0e0-4f7f-afd1-4cb86e8c8959" />
+
+<img width="826" height="566" alt="image" src="https://github.com/user-attachments/assets/0c8e4b8a-fa47-46df-b2eb-f4ded242dd8b" />
+
+<img width="881" height="579" alt="image" src="https://github.com/user-attachments/assets/f1371a04-cfba-494f-9ea8-0541eb00c06d" />
+
+<img width="538" height="403" alt="image" src="https://github.com/user-attachments/assets/7c21d757-aadc-495f-ae13-087a240342fb" />
+
+<img width="514" height="432" alt="image" src="https://github.com/user-attachments/assets/a0f77d5b-5043-4395-8773-db0f11dcdde9" />
+
+<img width="457" height="552" alt="image" src="https://github.com/user-attachments/assets/46e0303b-1a41-4161-8a48-4e757b7073de" />
+
+<img width="895" height="580" alt="image" src="https://github.com/user-attachments/assets/9c527e58-37a9-4b12-a7d0-83636dec752c" />
+
+## Roadmap 
 
 - Real UPI data via the RBI Account Aggregator framework (currently simulated)
 - Real peer benchmark data as the merchant base grows
